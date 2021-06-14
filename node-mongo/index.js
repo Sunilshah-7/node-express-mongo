@@ -1,8 +1,12 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
+const dboperation = require('./operations');
 const url = 'mongodb://localhost:27017';
 const dbname= 'conFusion';
 
+// IMPORTANT COMMENT ABOUT JSON
+// When you use + to show in the result, it will be [object Object]
+// When you use , to show in the result, it will display the real object [{}]
 MongoClient.connect(url,(err,client)=>{
     assert.equal(err,null);
     console.log('Connected to database successfully.');
@@ -10,22 +14,24 @@ MongoClient.connect(url,(err,client)=>{
     const db = client.db(dbname);
     const collection = db.collection('dishes');
 
-    collection.insertOne({"name":"Uthappizza","description":"test2"},(err,result)=>{
-        assert.equal(err,null);
+   dboperation.insertDocument(db,{'name':'Vadonut','description':'Test'},"dishes",(result)=>{
+       console.log("Insert document:\n ",result.ops);
 
-        console.log("After Insert:\n");
-        console.log(result.ops);
+       dboperation.findDocuments(db,"dishes",(docs)=>{
+           console.log("Found documents:\n",docs);
 
-        collection.find({}).toArray((err,docs)=>{
-            assert.equal(err,null);
+           dboperation.updateDocument(db,{'name':'Vadonut'},{'description':'Updated Test'},"dishes",(result)=>{
+               console.log("Updated documents:\n",result.result);
 
-            console.log("Found:");
-            console.log(docs);
+               dboperation.findDocuments(db,"dishes",(docs)=>{
+                   console.log("Found updated documents:\n",docs);
 
-            db.dropCollection("dishes",(err,result)=>{
-                assert.equal(err,null);
-                client.close();
-            })
-        })
-    })
+                    db.dropCollection("dishes",(result)=>{
+                        console.log("Dropped collection:",result);
+                        client.close();
+                    })
+               })
+           })
+       })
+   })
 })
