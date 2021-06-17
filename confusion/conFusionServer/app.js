@@ -22,15 +22,40 @@ connect.then((db)=>{
   console.log("Connected to database successfully.");
 },(err)=>console.log(err));
 
+function auth(req,res,next){
+  console.log(req.headers);
+  var authHeader = req.headers.authorization;
+  if(!authHeader){
+    err = new Error('User is not authorized');
+    res.setHeader('WWW-Authenticate','Basic');
+    err.status = 401;
+    next(err);
+    return;
+  }
+  var auth = new Buffer.from(authHeader.split(' ')[1],'base64').toString().split(':');
+  var user = auth[0];
+  var pass = auth[1];
+  if(user==='admin'&&pass==='password'){
+    next(); //authorised
+  }
+  else{
+    err = new Error('User is not authorized');
+    res.setHeader('WWW-Authenticate','Basic');
+    err.status = 401;
+    next(err);
+  }
+}
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 app.use(logger('dev'));
+app.use(auth);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
