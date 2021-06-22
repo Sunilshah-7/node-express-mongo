@@ -3,6 +3,7 @@ var router = express.Router();
 const bodyParser = require('body-parser');
 var passport = require('passport');
 const User = require('../models/users');
+var authenticate = require('../authenticate');
 
 router.use(bodyParser.json());
 /* GET users listing. */
@@ -29,9 +30,10 @@ router.post('/signup',(req,res,next)=>{
 })
 
 router.post('/login',passport.authenticate('local'),(req,res)=>{
+  var token = authenticate.getToken({_id:req.user._id});
   res.statusCode=200;
   res.setHeader('Content-type','application/json');
-  res.json({success:true,status:'You are logged in!'});  
+  res.json({success:true,token:token,status:'You are logged in!'});  
 })
 
 router.get('/logout',(req,res)=>{
@@ -43,7 +45,6 @@ router.get('/logout',(req,res)=>{
   else{
     var err = new Error("You are not logged in.");
     err.status=403;
-    next(err);
   }
 })
 
