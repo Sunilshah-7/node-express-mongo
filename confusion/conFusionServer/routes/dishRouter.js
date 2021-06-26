@@ -18,7 +18,7 @@ dishRouter.route('/')
    },(err)=>next(err))
    .catch((err)=>next(err));
 })
-.post(authenticate.verifyUser,(req,res,next)=>{
+.post(authenticate.verifyUser,authenticate.verifyAdmin,(req,res,next)=>{
     Dishes.create(req.body)
     .then((dish)=>{
         console.log("Dish created ", dish);
@@ -28,11 +28,11 @@ dishRouter.route('/')
     },(err)=>next(err))
     .catch((err)=>next(err));
 })
-.put(authenticate.verifyUser,(req,res,next)=>{
+.put(authenticate.verifyUser,authenticate.verifyAdmin,(req,res,next)=>{
     res.statusCode = 403;
     res.end("PUT not supported for /dishes");
 })
-.delete(authenticate.verifyUser,(req,res,next)=>{
+.delete(authenticate.verifyUser,authenticate.verifyAdmin,(req,res,next)=>{
     Dishes.remove({})
     .then((resp)=>{
         res.statusCode = 200;
@@ -53,11 +53,11 @@ dishRouter.route('/:dishID')
     },(err)=>next(err))
     .catch((err)=>next(err));
 })
-.post(authenticate.verifyUser,(req,res,next)=>{
+.post(authenticate.verifyUser,authenticate.verifyAdmin,(req,res,next)=>{
     res.statusCode = 403;
     res.end('POST not supported for the /dishes/'+req.params.dishID);
 })
-.put(authenticate.verifyUser,(req,res,next)=>{
+.put(authenticate.verifyUser,authenticate.verifyAdmin,(req,res,next)=>{
     Dishes.findByIdAndUpdate(req.params.dishID,{
     $set: req.body
     },{new:true})
@@ -68,7 +68,7 @@ dishRouter.route('/:dishID')
     },(err)=>next(err))
     .catch((err)=>next(err));
 })
-.delete(authenticate.verifyUser,(req,res,next)=>{
+.delete(authenticate.verifyUser,authenticate.verifyAdmin,(req,res,next)=>{
    Dishes.findByIdAndDelete(req.params.dishID)
    .then((resp)=>{
         res.statusCode = 200;
@@ -123,11 +123,11 @@ dishRouter.route('/:dishID/comments')
     },(err)=>next(err))
     .catch((err)=>next(err));
 })
-.put(authenticate.verifyUser,(req,res,next)=>{
+.put(authenticate.verifyUser,authenticate.verifyAdmin,(req,res,next)=>{
     res.statusCode = 403;
     res.end("PUT not supported for /dishes"+req.params.dishID+"/comments");
 })
-.delete(authenticate.verifyUser,(req,res,next)=>{
+.delete(authenticate.verifyUser,authenticate.verifyAdmin,(req,res,next)=>{
     Dishes.findById(req.params.dishID)
     .then((dish)=>{
         if(dish!=null){
